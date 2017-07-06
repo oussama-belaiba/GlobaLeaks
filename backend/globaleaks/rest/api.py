@@ -371,6 +371,7 @@ class APIResourceWrapper(Resource):
         # to reduce possibility for XSS attacks.
         request.setHeader("X-Content-Type-Options", "nosniff")
         request.setHeader("X-XSS-Protection", "1; mode=block")
+        request.setHeader("Content-Security-Policy", "default-src 'self' data:")
 
         # to disable caching
         request.setHeader("Cache-control", "no-cache, no-store, must-revalidate")

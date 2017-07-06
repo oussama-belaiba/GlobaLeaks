@@ -47,6 +47,7 @@ module.exports = function(grunt) {
     copy: {
       sources: {
         files: [
+          { dest: 'app/css', cwd: '.', src: ['node_modules/angular/angular-csp.css'], expand: true, flatten: true },
           { dest: 'app/css', cwd: '.', src: ['node_modules/bootstrap-inline-rtl/dist/css/bootstrap.css'], expand: true, flatten: true },
           { dest: 'app/css', cwd: '.', src: ['node_modules/ui-select/dist/select.min.css'], expand: true, flatten: true },
           { dest: 'app/fonts', cwd: '.', src: ['node_modules/bootstrap-inline-rtl/fonts/*'], expand: true, flatten: true },
@@ -164,11 +165,9 @@ module.exports = function(grunt) {
           replacements: [
             {
               pattern: '<script src="js/scripts.js"></script>',
-              replacement: ''
-            },
-            {
-              pattern: '<!-- start_globaleaks(); -->',
-              replacement: 'start_globaleaks();'
+              replacement: function (match) {
+                return '<script src="' + fileToDataURI('tmp/js/loader.js') + '"></script>';
+              }
             },
             {
               pattern: "src: url('../fonts/glyphicons-halflings-regular.eot');",
@@ -324,6 +323,7 @@ module.exports = function(grunt) {
     grunt.file.mkdir('build/');
 
     grunt.file.copy('tmp/index.html', 'build/index.html');
+    grunt.file.copy('tmp/js/loader.js', 'build/js/loader.js');
     grunt.file.copy('tmp/js/scripts.js', 'build/js/scripts.js');
     grunt.file.copy('tmp/js/plugin.js', 'build/js/plugin.js');
 

@@ -106,6 +106,11 @@ class HTTPStreamProxyRequest(http.Request):
             self.content = io.BytesIO()
             self.reset_buffer()
 
+    def setSecurityHeaders(self):
+        self.responseHeaders.setRawHeaders('Strict-Transport-Security', ['max-age=31536000'])
+        self.responseHeaders.setRawHeaders('Content-Security-Policy', ['Content-Security-Policy: default-src \'self\' https: data:'])
+
+
     def process(self):
         proxy_url = bytes(urlparse.urljoin(self.channel.proxy_url, self.uri))
 
@@ -140,7 +145,7 @@ class HTTPStreamProxyRequest(http.Request):
         if self.gzip:
             self.responseHeaders.setRawHeaders(b'content-encoding', [b'gzip'])
 
-        self.responseHeaders.setRawHeaders('Strict-Transport-Security', ['max-age=31536000'])
+        self.setSecurityHeaders()
 
         self.setResponseCode(response.code)
 
@@ -155,7 +160,7 @@ class HTTPStreamProxyRequest(http.Request):
 
     def proxyError(self, fail):
         # Always apply the HSTS header. Compliant browsers using plain HTTP will ignore it.
-        self.responseHeaders.setRawHeaders('Strict-Transport-Security', ['max-age=31536000'])
+        self.setSecurityHeaders()
         self.setResponseCode(502)
         self.forwardClose()
 
