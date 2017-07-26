@@ -73,6 +73,10 @@ DateType = r'(.*)'
 # /^(application|audio|example|image|message|model|multipart|text|video)\/[a-zA-Z0-9]+([+.-][a-zA-z0-9]+)*$/
 ContentType = r'(.*)'
 
+AdminTenantDesc = {
+    'label': unicode
+}
+
 FileDesc = {
     'name': unicode,
     'description': unicode,
