@@ -1,13 +1,7 @@
-import gzip
-import json
-import ssl
-import time
-from StringIO import StringIO
-import tempfile
-import urllib2
 import SimpleHTTPServer
 import SocketServer
-import signal
+import gzip, json, os, signal, ssl, tempfile, time, urllib2
+from StringIO import StringIO
 
 from twisted.internet import threads, reactor
 from twisted.internet.defer import inlineCallbacks, Deferred
@@ -18,7 +12,7 @@ from globaleaks.orm import transact
 from globaleaks.workers import supervisor, process
 from globaleaks.workers.worker_https import HTTPSProcess
 
-from globaleaks.tests import helpers
+from globaleaks.tests import helpers, TEST_DIR
 from globaleaks.tests.utils import test_tls
 
 @transact
@@ -29,6 +23,7 @@ class TestProcessSupervisor(helpers.TestGL):
     @inlineCallbacks
     def setUp(self):
         super(TestProcessSupervisor, self).setUp()
+        ssl._https_verify_certificates(enable=False)
         yield test_tls.commit_valid_config()
 
     @inlineCallbacks
@@ -49,24 +44,57 @@ class TestProcessSupervisor(helpers.TestGL):
         self.assertFalse(p_s.shutting_down)
         self.assertFalse(p_s.is_running())
 
-
     @inlineCallbacks
     def test_init_with_launch(self):
         yield toggle_https(enabled=True)
-        sock, fail = reserve_port_for_ip('localhost', 43434)
+        self.https_sock, fail = reserve_port_for_ip('127.0.0.1', 43434)
         self.assertIsNone(fail)
 
-        ip, port = '127.0.0.1', 43435
+        ip, proxy_port = '127.0.0.1', 43435
 
-        p_s = supervisor.ProcessSupervisor([sock], ip, port)
+        print 'https_sock', self.https_sock
+        p_s = supervisor.ProcessSupervisor([self.https_sock], ip, proxy_port)
         yield p_s.maybe_launch_https_workers()
 
         self.assertTrue(p_s.is_running())
+        self.assertTrue(p_s.tls_process_pool > 0)
+
+        self.pp = helpers.SimpleServerPP()
+
+        script_path = os.path.abspath(os.path.join(TEST_DIR, 'subprocs', 'slow_server.py'))
+        reactor.spawnProcess(self.pp, 'python',
+                             args=['python', script_path, str(proxy_port)],
+                             usePTY=True)
+
+        yield self.pp.start_defer
+
+        yield threads.deferToThread(self.fetch_resource)
+
+        #from IPython.core.debugger import Tracer; Tracer()()
+
+        # TODO ensure that the reactor goes down
+        d = threads.deferToThread(self.fetch_resource)
+
+        #from globaleaks.utils.utility import deferred_sleep
+        #yield deferred_sleep(1)
 
         yield p_s.shutdown()
 
         self.assertFalse(p_s.shutting_down)
         self.assertFalse(p_s.is_running())
+
+    def tearDown(self):
+        self.https_sock.close()
+        #if hasattr(self, 'pp'):
+        #    self.pp.transport.loseConnection()
+        #    self.pp.transport.signalProcess('KILL')
+
+        helpers.TestGL.tearDown(self)
+
+    def fetch_resource(self):
+        response = urllib2.urlopen('https://127.0.0.1:43434')
+        hdrs = response.info()
+        self.assertEqual(hdrs.get('Server'), 'SimpleHTTP/0.6 Python/2.7.12')
 
 
 @transact
@@ -110,7 +138,10 @@ class TestSubprocessRun(helpers.TestGL):
 
         # Start the HTTP server proxy requests will be forwarded to.
         self.pp = helpers.SimpleServerPP()
-        reactor.spawnProcess(self.pp, 'python', args=['python', '-m', 'SimpleHTTPServer', '43434'], usePTY=True)
+        reactor.spawnProcess(self.pp, 'python',
+                             args=['python', '-m', 'SimpleHTTPServer', '43434'],
+                             usePTY=True)
+
         yield self.pp.start_defer
 
         # Check that requests are routed successfully

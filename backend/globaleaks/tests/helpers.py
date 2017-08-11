@@ -235,8 +235,8 @@ class TestGL(unittest.TestCase):
 
         yield db.refresh_memory_variables()
 
-        sup = ProcessSupervisor([], '127.0.0.1', 8082)
-        GLSettings.appstate.process_supervisor = sup
+        #sup = ProcessSupervisor([], '127.0.0.1', 8082)
+        #GLSettings.appstate.process_supervisor = sup
 
         Alarm.reset()
         event.EventTrackQueue.clear()
@@ -950,6 +950,7 @@ class SimpleServerPP(ProcessProtocol):
         process.set_pdeathsig(signal.SIGINT)
 
     def outReceived(self, data):
+        print data
         # When the HTTPServer is ready it will produce a msg which we can hook
         # the start_defer callback to.
         if not self.welcome_msg:

@@ -107,6 +107,7 @@ class HTTPStreamProxyRequest(http.Request):
             self.reset_buffer()
 
     def process(self):
+        self.channel.log("HTTPStreamProxyRequest process")
         proxy_url = bytes(urlparse.urljoin(self.channel.proxy_url, self.uri))
 
         hdrs = self.requestHeaders
@@ -133,9 +134,11 @@ class HTTPStreamProxyRequest(http.Request):
         proxy_d.addCallback(self.proxySuccess)
         proxy_d.addErrback(self.proxyError)
 
+        self.channel.log("HTTPStreamProxyRequest NOT_DONE YET")
         return NOT_DONE_YET
 
     def proxySuccess(self, response):
+        self.channel.log("HTTPStreamProxyRequest proxy_success")
         self.responseHeaders = response.headers
         if self.gzip:
             self.responseHeaders.setRawHeaders(b'content-encoding', [b'gzip'])
@@ -154,35 +157,45 @@ class HTTPStreamProxyRequest(http.Request):
         d_forward.addBoth(self.forwardClose)
 
     def proxyError(self, fail):
+        self.channel.log("HTTPStreamProxyRequest proxy_d.errBack")
         # Always apply the HSTS header. Compliant browsers using plain HTTP will ignore it.
         self.responseHeaders.setRawHeaders('Strict-Transport-Security', ['max-age=31536000'])
         self.setResponseCode(502)
         self.forwardClose()
 
     def proxyUnregister(self, o):
+        self.channel.log("HTTPStreamChannel unregister")
         self.unregisterProducer()
         return o
 
     def forwardClose(self, *args):
+        self.channel.log("HTTPStreamChannel forwardclose")
         self.content.close()
         self.finish()
+        self.channel.log("HTTPStreamChannel closed")
 
 
 class HTTPStreamChannel(http.HTTPChannel):
     requestFactory = HTTPStreamProxyRequest
 
-    def __init__(self, proxy_url, *args, **kwargs):
+    def __init__(self, proxy_url, log_fnc, *args, **kwargs):
         http.HTTPChannel.__init__(self, *args, **kwargs)
+
+        self.log = log_fnc
+        self.log('HTTPStreamChannel init XXX')
 
         self.proxy_url = proxy_url
         self.http_agent = Agent(reactor, connectTimeout=30)
 
 
 class HTTPStreamFactory(http.HTTPFactory):
-    def __init__(self, proxy_url, *args, **kwargs):
+    def __init__(self, proxy_url, log_fnc, *args, **kwargs):
         http.HTTPFactory.__init__(self, *args, **kwargs)
         self.proxy_url = proxy_url
+        self.log = log_fnc
+        self.log("HTTPStreamFact init")
 
     def buildProtocol(self, addr):
-        proto = HTTPStreamChannel(self.proxy_url)
+        self.log("HTTPStreamFact buildProto")
+        proto = HTTPStreamChannel(self.proxy_url, self.log)
         return proto

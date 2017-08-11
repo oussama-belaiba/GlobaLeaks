@@ -2,6 +2,7 @@
 import logging
 import multiprocessing
 import os
+import signal
 
 from sys import executable
 
@@ -41,7 +42,7 @@ class ProcessSupervisor(object):
         self.tls_cfg = {
           'proxy_ip': proxy_ip,
           'proxy_port': proxy_port,
-          'debug': log.loglevel <= logging.DEBUG,
+          'debug': True, #log.loglevel <= logging.DEBUG,
         }
 
         if len(net_sockets) == 0:
@@ -72,8 +73,10 @@ class ProcessSupervisor(object):
 
         if ok and err is None:
             log.info("Decided to launch https workers")
+            print("Decided to launch https workers")
             yield self.launch_https_workers()
         else:
+            print('Did not launch these servants')
             log.info("Not launching https workers due to %s" % err)
             yield defer.fail(err)
 
@@ -117,21 +120,22 @@ class ProcessSupervisor(object):
             log.err("Not relaunching child process")
 
     def should_spawn_child(self, mort_rate):
-        # TODO add logging based on condition hit
-
         if self.shutting_down:
             return False
 
         nrml_deaths = 3*self.tls_process_state['target_proc_num']
 
-        # TODO hitting this condition means something is really wrong. Log it.
         max_deaths = nrml_deaths*150
-
         num_deaths = self.tls_process_state['deaths']
+        if num_deaths >= max_deaths:
+            log.err("Danger! Exceeded number of maximum allowed subprocess failures.")
+            return False
 
-        return len(self.tls_process_pool) < self.tls_process_state['target_proc_num'] and \
-               num_deaths < max_deaths and \
-               (mort_rate < self.MAX_MORTALITY_RATE or num_deaths < nrml_deaths)
+        if mort_rate > self.MAX_MORTALITY_RATE and num_deaths >= nrml_deaths:
+            log.err("Danger! Subprocesses are failing at an excessively high rate.")
+            return False
+
+        return len(self.tls_process_pool) < self.tls_process_state['target_proc_num']
 
     def last_one_out(self):
         """
@@ -178,7 +182,7 @@ class ProcessSupervisor(object):
 
         return s
 
-    def shutdown(self):
+    def shutdown(self, soft=False):
         log.debug('Starting shutdown of %d children' % len(self.tls_process_pool))
 
         # Handle condition where shutdown is called with no active children
@@ -190,7 +194,9 @@ class ProcessSupervisor(object):
 
         for pp in self.tls_process_pool:
             try:
-                pp.transport.signalProcess('KILL')
+                print 'FIRING SIGNAL'
+                log.debug('FIRING SIG')
+                pp.transport.signalProcess(signal.SIGUSR1)
             except OSError as e:
                 log.debug('Tried to signal: %d got: %s' % (pp.transport.pid, e))
 

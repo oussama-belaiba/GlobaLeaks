@@ -12,6 +12,8 @@ from twisted.internet.protocol import ProcessProtocol
 from globaleaks.utils.utility import log
 
 def SigQUIT(SIG, FRM):
+    print 'CAUGHT SIGNAL'
+    with open('/tmp/HEY', 'a') as f: f.write('CAUGHT SIGNAL\n')
     try:
         if reactor.running:
             reactor.stop()
@@ -48,6 +50,8 @@ class Process(object):
 
         signal.signal(signal.SIGTERM, SigQUIT)
         signal.signal(signal.SIGINT, SigQUIT)
+        signal.signal(signal.SIGUSR1, SigQUIT)
+        with open('/tmp/HEY', 'a') as f: f.write('Attached Signals\n')
         set_proctitle(self.name)
         set_pdeathsig(signal.SIGINT)
 
