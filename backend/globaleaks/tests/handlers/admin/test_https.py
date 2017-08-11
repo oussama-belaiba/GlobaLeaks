@@ -14,7 +14,7 @@ from globaleaks.rest import errors
 from globaleaks.settings import GLSettings
 from globaleaks.utils.letsencrypt import ChallTok
 
-from globaleaks.tests import helpers
+from globaleaks.tests import helpers, TEST_DIR
 from globaleaks.tests.utils import test_tls
 
 
@@ -301,14 +301,8 @@ class TestHostnameTestHandler(helpers.TestHandler):
         # Start the HTTP server proxy requests will be forwarded to.
         self.pp = helpers.SimpleServerPP()
 
-        # An extended SimpleHTTPServer to handle the addition of the globaleaks header
-        e = ""+\
-        "from SimpleHTTPServer import SimpleHTTPRequestHandler as rH; "+\
-        "from SimpleHTTPServer import test as t; "+\
-        "of = rH.end_headers; rH.end_headers = lambda s: s.send_header('Server', 'GlobaLeaks') or of(s); "+\
-        "t(HandlerClass=rH)"
-
-        yield reactor.spawnProcess(self.pp, 'python', args=['python', '-c', e, '43434'], usePTY=True)
+        server_path = os.path.abspath(os.path.join(TEST_DIR, 'subprocs', 'fake_glserver.py'))
+        yield reactor.spawnProcess(self.pp, 'python', args=['python', server_path, '43434'], usePTY=True)
 
         yield self.pp.start_defer
 
