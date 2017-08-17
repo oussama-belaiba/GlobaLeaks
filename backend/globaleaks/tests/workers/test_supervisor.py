@@ -56,6 +56,10 @@ class TestProcessSupervisor(helpers.TestGL):
         p_s = supervisor.ProcessSupervisor([self.https_sock], ip, proxy_port)
         yield p_s.maybe_launch_https_workers()
 
+        from globaleaks.utils.utility import deferred_sleep
+        from time import sleep
+        sleep(4)
+
         self.assertTrue(p_s.is_running())
         self.assertTrue(p_s.tls_process_pool > 0)
 
@@ -68,33 +72,38 @@ class TestProcessSupervisor(helpers.TestGL):
 
         yield self.pp.start_defer
 
-        yield threads.deferToThread(self.fetch_resource)
+        #yield threads.deferToThread(self.fetch_resource)
 
         #from IPython.core.debugger import Tracer; Tracer()()
+        print('trying to shutdown')
 
         # TODO ensure that the reactor goes down
-        d = threads.deferToThread(self.fetch_resource)
+        #d = threads.deferToThread(self.fetch_resource)
 
         #from globaleaks.utils.utility import deferred_sleep
         #yield deferred_sleep(1)
+        print('waiting for yield')
 
         yield p_s.shutdown()
 
+        print('shutdown')
+
         self.assertFalse(p_s.shutting_down)
         self.assertFalse(p_s.is_running())
-
-    def tearDown(self):
-        self.https_sock.close()
-        #if hasattr(self, 'pp'):
-        #    self.pp.transport.loseConnection()
-        #    self.pp.transport.signalProcess('KILL')
-
-        helpers.TestGL.tearDown(self)
 
     def fetch_resource(self):
         response = urllib2.urlopen('https://127.0.0.1:43434')
         hdrs = response.info()
         self.assertEqual(hdrs.get('Server'), 'SimpleHTTP/0.6 Python/2.7.12')
+
+    def tearDown(self):
+        self.https_sock.close()
+        if hasattr(self, 'pp'):
+            import signal
+            self.pp.transport.signalProcess(signal.SIGUSR1)
+            self.pp.transport.loseConnection()
+
+        helpers.TestGL.tearDown(self)
 
 
 @transact

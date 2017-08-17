@@ -16,6 +16,12 @@ from globaleaks.utils.tls import TLSServerContextFactory, ChainValidator
 from globaleaks.utils.httpsproxy import HTTPStreamFactory
 
 class HTTPSProcess(Process):
+    '''
+    A modular https server configurable with a unix socket
+
+    :field ports: A list of `twisted.internet.tcp.Port`s the server listens on
+
+    '''
     name = 'gl-https-proxy'
     ports = []
 
@@ -52,16 +58,30 @@ class HTTPSProcess(Process):
             self.ports.append(port)
             self.log("HTTPS proxy listening on %s" % port)
 
+    def simpleCB(self, _, port):
+        self.log('Calling simple CB')
+        self.log('Served #num: %d' % port.sessionno)
+        self.port.loseConnection()
+
     def shutdown(self):
         self.log("HTTPSProcess.log shutdown")
 
         dl = []
         for port in self.ports:
             self.log("HTTPProcess stopping on %s" % port)
-            dl.append(port.loseConnection())
-        self.log("Waiting for %s" % dl)
+            self.log("port is connected . . . %s" % port.connected)
+            port.disconnecting = True
+            from globaleaks.utils.utility import deferred_sleep
+            d = deferred_sleep(40).addBoth(self.simpleCB, port)
+            dl.append(d)
+            self.log("port is disconnecting . . . %s" % port.disconnecting)
+            self.log("is resolved: %s" % d.called)
+        #os.fdopen(0, 'w', 1).write('HEY HEY')
         return DeferredList(dl)
 
+def stop_reactor(_):
+    reactor.stop()
+    with os.fdopen(0, 'w', 1) as f: f.write('Called reactor stop\n')
 
 if __name__ == '__main__':
     h = HTTPSProcess()
@@ -69,7 +89,7 @@ if __name__ == '__main__':
 
     def stop_handler(signum, frame):
         h.log('Signal handler called with signal: %d' % signum)
-        h.shutdown().addBoth(reactor.stop)
+        h.shutdown().addBoth(stop_reactor)
 
     signal.signal(signal.SIGUSR1, stop_handler)
 

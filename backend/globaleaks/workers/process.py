@@ -51,7 +51,6 @@ class Process(object):
         signal.signal(signal.SIGTERM, SigQUIT)
         signal.signal(signal.SIGINT, SigQUIT)
         signal.signal(signal.SIGUSR1, SigQUIT)
-        with open('/tmp/HEY', 'a') as f: f.write('Attached Signals\n')
         set_proctitle(self.name)
         set_pdeathsig(signal.SIGINT)
 
