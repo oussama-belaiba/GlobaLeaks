@@ -19,6 +19,48 @@ from globaleaks.tests.utils import test_tls
 def toggle_https(store, enabled):
     PrivateFactory(store).set_val('https_enabled', enabled)
 
+from twisted.web.iweb import IBodyProducer
+from twisted.internet.defer import succeed
+from zope.interface import implementer
+from twisted.internet.protocol import Protocol
+
+
+@implementer(IBodyProducer)
+class TinyProducer(object):
+    def __init__(self, body, ccc):
+        self.body = body
+        self.length = len(body)
+        self.tc = ccc
+        self.deferred = Deferred()
+
+    def startProducing(self, consumer):
+        consumer.write(self.body)
+        return succeed(None)
+
+    def pauseProducing(self):
+        pass
+
+    def stopProducing(self):
+        pass
+
+
+class BeginningPrinter(Protocol):
+    def __init__(self, finished):
+        self.finished = finished
+        self.remaining = 1024 * 10
+
+    def dataReceived(self, bytes):
+        if self.remaining:
+            display = bytes[:self.remaining]
+            print('Some data received:')
+            print(display)
+            self.remaining -= len(display)
+
+    def connectionLost(self, reason):
+        print('Finished receiving body:', reason.getErrorMessage())
+        self.finished.callback(None)
+
+
 class TestProcessSupervisor(helpers.TestGL):
     @inlineCallbacks
     def setUp(self):
@@ -56,10 +98,6 @@ class TestProcessSupervisor(helpers.TestGL):
         p_s = supervisor.ProcessSupervisor([self.https_sock], ip, proxy_port)
         yield p_s.maybe_launch_https_workers()
 
-        from globaleaks.utils.utility import deferred_sleep
-        from time import sleep
-        sleep(4)
-
         self.assertTrue(p_s.is_running())
         self.assertTrue(p_s.tls_process_pool > 0)
 
@@ -74,22 +112,41 @@ class TestProcessSupervisor(helpers.TestGL):
 
         #yield threads.deferToThread(self.fetch_resource)
 
-        #from IPython.core.debugger import Tracer; Tracer()()
-        print('trying to shutdown')
+        from twisted.web.client import Agent
 
-        # TODO ensure that the reactor goes down
-        #d = threads.deferToThread(self.fetch_resource)
+        agent = Agent(reactor)
 
-        #from globaleaks.utils.utility import deferred_sleep
-        #yield deferred_sleep(1)
-        print('waiting for yield')
+        from twisted.internet import _sslverify
+        _sslverify.platformTrust = lambda : None
 
+        time.sleep(5)
+
+        tiny_prod = TinyProducer('', self)
+        d = agent.request('GET', 'https://localhost:43434/slow_server.py', bodyProducer=tiny_prod)
+
+        def cbResponse(response):
+            print('Response received %s' % response)
+            finished = Deferred()
+            response.deliverBody(BeginningPrinter(finished))
+            return finished
+
+        d.addCallback(cbResponse)
+
+        def cbShutdown(ignored):
+            print('E morto per qualsiasi ragione: %s' % ignored)
+
+        d.addBoth(cbShutdown)
+
+        yield threads.deferToThread(self.fetch_resource)
+
+        print('Shutting down')
         yield p_s.shutdown()
-
-        print('shutdown')
 
         self.assertFalse(p_s.shutting_down)
         self.assertFalse(p_s.is_running())
+
+        # TODO new request after shutdown should just fail
+        #yield threads.deferToThread(self.fetch_resource_with_fail)
 
     def fetch_resource(self):
         response = urllib2.urlopen('https://127.0.0.1:43434')
