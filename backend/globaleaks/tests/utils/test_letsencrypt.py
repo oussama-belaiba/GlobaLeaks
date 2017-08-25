@@ -1,11 +1,9 @@
 import os
 
 from OpenSSL import crypto
-from twisted.trial.unittest import TestCase
-
-from globaleaks.utils import letsencrypt
-
 from globaleaks.tests import helpers
+from globaleaks.utils import letsencrypt
+from twisted.trial.unittest import TestCase
 
 class TestRunAcmeReg(TestCase):
     def test_format_asn1_date(self):

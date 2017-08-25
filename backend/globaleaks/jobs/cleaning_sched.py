@@ -1,8 +1,5 @@
 # -*- coding: UTF-8
 # Implementation of the cleaning operations.
-
-import time
-
 from datetime import timedelta
 
 from globaleaks import models
@@ -16,7 +13,7 @@ from globaleaks.orm import transact_sync
 from globaleaks.security import overwrite_and_remove
 from globaleaks.settings import GLSettings
 from globaleaks.utils.templating import Templating
-from globaleaks.utils.utility import log, datetime_now, datetime_never, \
+from globaleaks.utils.utility import datetime_now, datetime_never, \
     datetime_to_ISO8601
 
 

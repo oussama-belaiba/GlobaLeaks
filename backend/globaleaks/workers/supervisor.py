@@ -3,16 +3,14 @@ import logging
 import multiprocessing
 import os
 import signal
-
 from sys import executable
-
-from twisted.internet import defer, reactor
 
 from globaleaks.models.config import PrivateFactory, load_tls_dict_list
 from globaleaks.orm import transact
 from globaleaks.utils import tls
 from globaleaks.utils.utility import log, datetime_now, datetime_to_ISO8601
 from globaleaks.workers.process import HTTPSProcProtocol
+from twisted.internet import defer, reactor
 
 
 class ProcessSupervisor(object):

@@ -1,18 +1,14 @@
-"""Example script showing how to use acme client API."""
-import os, pkg_resources
+# -*- coding: UTF-8
+from acme import challenges, client, jose, messages
 from datetime import datetime
 from urllib2 import urlopen
 
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from OpenSSL.crypto import FILETYPE_PEM, dump_certificate
 
-from globaleaks.mocks import acme_mocks
-
-from acme import challenges, client, jose, messages, util
-
 from globaleaks.utils.utility import log
+
+from globaleaks.mocks import acme_mocks
+from acme import challenges, client, jose, messages, util
 
 
 class ChallTok:

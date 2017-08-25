@@ -5,7 +5,6 @@
 # This file contains the complex structures stored in Storm table
 # in order to checks integrity between exclusive options, provide defaults,
 # supports extensions (without changing DB format)
-import copy
 
 from globaleaks.models import Model
 from globaleaks.settings import GLSettings
