@@ -35,9 +35,11 @@ class Rosetta(object):
 
     def singlelang_to_multilang_dict(self, obj, language):
         ret = {}
+
         for key in self._localized_keys:
             value = {language: obj[key]} if key in obj else {language: ''}
             ret[key] = value
+
         return ret
 
     def dump_localized_key(self, key, language):

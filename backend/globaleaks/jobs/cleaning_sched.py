@@ -142,10 +142,8 @@ class CleaningSchedule(LoopingJob):
         files_to_delete = self.get_files_to_secure_delete()
 
         for file_to_delete in files_to_delete:
-            self.start_time = time.time()
             overwrite_and_remove(file_to_delete)
             self.commit_file_deletion(file_to_delete)
-            current_run_time = time.time() - self.start_time
 
     def operation(self):
         self.clean_expired_wbtips()

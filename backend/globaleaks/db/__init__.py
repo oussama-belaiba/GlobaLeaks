@@ -81,7 +81,7 @@ def update_db():
 
         log.err("Found an already initialized database version: %d", db_version)
 
-        if db_version >= FIRST_DATABASE_VERSION_SUPPORTED and db_version < DATABASE_VERSION:
+        if FIRST_DATABASE_VERSION_SUPPORTED <= db_version < DATABASE_VERSION:
             log.err("Performing schema migration from version %d to version %d", db_version, DATABASE_VERSION)
             migration.perform_schema_migration(db_version)
             log.err("Migration completed with success!")

@@ -58,10 +58,11 @@ def run_acme_reg_to_finish(domain, regr_uri, accnt_key, site_key, csr, tmp_chall
     log.info('Exposing challenge on %s', v)
     tmp_chall_dict.set(v, ChallTok(chall_tok))
 
+    domain = 'localhost:8082'
+    test_path = 'http://{0}{1}'.format(domain, challb.path)
+    log.debug('Testing local url path: %s', test_path)
+
     try:
-       domain = 'localhost:8082'
-       test_path = 'http://{0}{1}'.format(domain, challb.path)
-       log.debug('Testing local url path: %s', test_path)
        resp = urlopen(test_path)
        t = resp.read().decode('utf-8').strip()
        assert t == chall_tok

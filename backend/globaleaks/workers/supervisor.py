@@ -84,7 +84,7 @@ class ProcessSupervisor(object):
         self.tls_process_state['deaths'] = 0
         self.tls_process_state['last_death'] = datetime_now()
 
-        d_lst = [self.launch_worker() for i in range(self.tls_process_state['target_proc_num'])]
+        d_lst = [self.launch_worker() for _ in range(self.tls_process_state['target_proc_num'])]
 
         return defer.DeferredList(d_lst)
 

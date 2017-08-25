@@ -139,7 +139,6 @@ def update_node_setting(store, var_name, value):
 def get_dummy_step():
     return {
         'id': '',
-        'questionnaire_id': '',
         'label': u'Step 1',
         'description': u'Step Description',
         'presentation_order': 0,

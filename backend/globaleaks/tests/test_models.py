@@ -99,7 +99,7 @@ class TestConfigL10N(helpers.TestGL):
         self.assertTrue(len(res) == len(LANGUAGES_SUPPORTED))
 
         c = store.find(ConfigL10N).count()
-        self.assertTrue(c > 1500 and c < 2300)
+        self.assertTrue(1500 < c < 2300)
 
     @inlineCallbacks
     def test_disable_langs(self):
