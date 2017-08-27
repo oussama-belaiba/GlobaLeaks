@@ -909,5 +909,6 @@ done
 
 #ERROR
 echo "Ouch! The installation is complete but GlobaLeaks failed to start."
+cat /var/globaleaks/log/globaleaks.log
 LAST_STATUS="1"
 exit 1
