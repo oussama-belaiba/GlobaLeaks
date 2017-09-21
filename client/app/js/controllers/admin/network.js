@@ -106,7 +106,7 @@ controller('AdminHTTPSConfigCtrl', ['$q', '$location', '$http', '$scope', '$uibM
   };
 
   $scope.postFile = function(file, resource) {
-    $scope.Utils.readFileAsText(file).then(function(str) {
+    $scope.Utils.readFileAsPEM(file, resource.name).then(function(str) {
       resource.content = str;
       return resource.$save();
     }).then(refreshConfig);

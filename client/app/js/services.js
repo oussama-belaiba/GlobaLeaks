@@ -1050,12 +1050,64 @@ factory('AdminUtils', ['AdminContextResource', 'AdminQuestionnaireResource', 'Ad
         return date;
       },
 
-      readFileAsText: function (file) {
+      isASCII: function(arrayBuf) {
+        var array = new Uint8Array(arrayBuf);
+        for (var i = 0; i < array.byteLength; i++) {
+          if (array[i] > 128) {
+            return false;
+          }
+        }
+        return true;
+      },
+
+      ab2str: function(arrayBuf) {
+        return String.fromCharCode.apply(null, new Uint8Array(arrayBuf));
+      },
+
+      formatAsPEM: function(arrayBuf, type) {
+        var s = window.btoa(String.fromCharCode.apply(null, new Uint8Array(arrayBuf)));
+
+        var pem_str_match = {
+          'priv_key': 'PRIVATE KEY',
+          'cert': 'CERTIFICATE',
+          'chain': 'CERTIFICATE',
+          'csr': 'CERTIFICATE REQUEST',
+        };
+
+        var t = "-----BEGIN " + pem_str_match[type] + "-----\n";
+        while(s.length > 0) {
+          t += s.substring(0, 64) + '\n';
+          s = s.substring(64);
+        }
+        t = t + "-----END "+ pem_str_match[type] + "-----";
+        return t;
+      },
+
+      readFileAsPEM: function(file, type) {
+        var deferred = $q.defer();
+        var reader = new $window.FileReader();
+        var Utils = this;
+
+        reader.onload = function() {
+          var res = '';
+          if (!Utils.isASCII(reader.result)) {
+            res = Utils.formatAsPEM(reader.result, type);
+          } else {
+            res = Utils.ab2str(reader.result);
+          }
+          deferred.resolve(res);
+        };
+
+        reader.readAsArrayBuffer(file);
+        return deferred.promise;
+      },
+
+      readFileAsText: function(file) {
         var deferred = $q.defer();
 
         var reader = new $window.FileReader();
 
-        reader.onload = function () {
+        reader.onload = function() {
           deferred.resolve(reader.result);
         };
 
