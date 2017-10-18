@@ -435,3 +435,7 @@ html[dir="rtl"] .textarea-btn {
 .file-upload input[type="file"] {
   display: none;
 }
+
+i.glyph-hide {
+    color: transparent;
+}
