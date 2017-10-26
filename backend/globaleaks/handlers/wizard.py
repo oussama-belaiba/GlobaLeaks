@@ -14,13 +14,13 @@ from globaleaks.utils.utility import log, datetime_null
 
 
 @transact
-def wizard(store, request, language):
+def wizard(store, tid, request, language):
     models.db_delete(store, l10n.EnabledLanguage, l10n.EnabledLanguage.name != language)
 
-    tenant = models.db_get(store, models.Tenant, id=1)
+    tenant = models.db_get(store, models.Tenant, id=tid)
     tenant.label = request['node']['name']
 
-    node = config.NodeFactory(store, 1)
+    node = config.NodeFactory(store, tid)
 
     if node.get_val(u'wizard_done'):
         log.err("DANGER: Wizard already initialized!")
@@ -32,12 +32,12 @@ def wizard(store, request, language):
     node.set_val(u'default_language', language)
     node.set_val(u'wizard_done', True)
 
-    node_l10n = l10n.NodeL10NFactory(store, 1)
+    node_l10n = l10n.NodeL10NFactory(store, tid)
 
     node_l10n.set_val(u'description', language, request['node']['description'])
     node_l10n.set_val(u'header_title_homepage', language, request['node']['name'])
 
-    profiles.load_profile(store, 1, request['profile'])
+    profiles.load_profile(store, tid, request['profile'])
 
     request['receiver']['username'] = u'recipient'
     request['receiver']['language'] = language
@@ -81,4 +81,4 @@ class Wizard(BaseHandler):
         request = self.validate_message(self.request.content.read(),
                                         requests.WizardDesc)
 
-        return wizard(request, self.request.language)
+        return wizard(self.request.tid, request, self.request.language)

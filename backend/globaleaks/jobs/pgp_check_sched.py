@@ -18,6 +18,8 @@ from globaleaks.utils.utility import datetime_now, datetime_null
 
 __all__ = ['PGPCheckSchedule']
 
+XTIDX = 1
+
 def db_get_expired_or_expiring_pgp_users(store):
     threshold = datetime_now() + timedelta(days=15)
 
@@ -41,7 +43,7 @@ class PGPCheckSchedule(LoopingJob):
 
             data = {
                 'type': u'admin_pgp_alert',
-                'node': db_admin_serialize_node(store, user_language),
+                'node': db_admin_serialize_node(store, XTIDX, user_language),
                 'notification': db_get_notification(store, user_language),
                 'users': expired_or_expiring
             }
@@ -55,7 +57,7 @@ class PGPCheckSchedule(LoopingJob):
 
         data = {
             'type': u'pgp_alert',
-            'node': db_admin_serialize_node(store, user_language),
+            'node': db_admin_serialize_node(store, XTIDX, user_language),
             'notification': db_get_notification(store, user_language),
             'user': user_desc
         }
