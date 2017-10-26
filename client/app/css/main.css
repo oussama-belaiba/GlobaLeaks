@@ -436,6 +436,11 @@ html[dir="rtl"] .textarea-btn {
   display: none;
 }
 
-i.glyph-hide {
-    color: transparent;
+.glyphicon-none:before {
+  content: "\2122";
+  color: transparent !important;
+}
+
+.hidden {
+  display: none;
 }
