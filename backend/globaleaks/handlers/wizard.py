@@ -15,7 +15,9 @@ from globaleaks.utils.utility import log, datetime_null
 
 @transact
 def wizard(store, tid, request, language):
-    models.db_delete(store, l10n.EnabledLanguage, l10n.EnabledLanguage.name != language)
+    models.db_delete(store, l10n.EnabledLanguage,
+                     l10n.EnabledLanguage.name != language,
+                     l10n.EnabledLanguage.tid == tid)
 
     tenant = models.db_get(store, models.Tenant, id=tid)
     tenant.label = request['node']['name']
@@ -42,10 +44,10 @@ def wizard(store, tid, request, language):
     request['receiver']['username'] = u'recipient'
     request['receiver']['language'] = language
 
-    _, receiver = db_create_receiver_user(store, request['receiver'], language)
+    _, receiver = db_create_receiver_user(store, request['receiver'], tid, language)
 
     request['context']['receivers'] = [receiver.id]
-    context = db_create_context(store, request['context'], language)
+    context = db_create_context(store, request['context'], tid, language)
 
     admin_dict = {
         'username': u'admin',
@@ -65,7 +67,7 @@ def wizard(store, tid, request, language):
         'pgp_key_expiration': datetime_null()
     }
 
-    db_create_admin_user(store, admin_dict, language)
+    db_create_admin_user(store, admin_dict, tid, language)
 
     db_refresh_memory_variables(store)
 
