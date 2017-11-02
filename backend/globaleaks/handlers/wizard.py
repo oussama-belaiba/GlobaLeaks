@@ -5,7 +5,7 @@ from globaleaks import models
 from globaleaks.db import db_refresh_memory_variables
 from globaleaks.handlers.admin import tenant
 from globaleaks.handlers.admin.context import db_create_context
-from globaleaks.handlers.admin.user import db_create_admin_user, db_create_receiver_user
+from globaleaks.handlers.admin.user import db_create_user, db_create_receiver_user
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import config, l10n, profiles
 from globaleaks.orm import transact
@@ -44,10 +44,10 @@ def wizard(store, tid, request, language):
     request['receiver']['username'] = u'recipient'
     request['receiver']['language'] = language
 
-    _, receiver = db_create_receiver_user(store, request['receiver'], tid, language)
+    _, receiver = db_create_receiver_user(store, tid, request['receiver'], language)
 
     request['context']['receivers'] = [receiver.id]
-    context = db_create_context(store, request['context'], tid, language)
+    context = db_create_context(store, tid, request['context'], language)
 
     admin_dict = {
         'username': u'admin',
@@ -67,7 +67,7 @@ def wizard(store, tid, request, language):
         'pgp_key_expiration': datetime_null()
     }
 
-    db_create_admin_user(store, admin_dict, tid, language)
+    db_create_user(store, tid, admin_dict, language)
 
     db_refresh_memory_variables(store)
 
