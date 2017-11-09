@@ -247,7 +247,7 @@ def get_mails_from_the_pool(store):
 
 class NotificationSchedule(NetLoopingJob):
     name = "Notification"
-    interval = 5
+    interval = 15
     monitor_interval = 3 * 60
 
     def sendmail(self, mail):
