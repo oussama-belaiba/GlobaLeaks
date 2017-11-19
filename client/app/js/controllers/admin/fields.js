@@ -75,8 +75,7 @@ GLClient.controller('AdminFieldEditorCtrl', ['$scope', '$uibModal', 'Utils',
         'id': '',
         'label': '',
         'score_points': 0,
-        'trigger_field': '',
-        'trigger_step': ''
+        'trigger_field': ''
       };
 
       new_option.presentation_order = $scope.newItemOrder($scope.field.options, 'presentation_order');
@@ -205,10 +204,6 @@ GLClient.controller('AdminFieldEditorCtrl', ['$scope', '$uibModal', 'Utils',
       }
 
       return Utils.openConfirmableModalDialog('views/partials/trigger_field.html', option, $scope);
-    };
-
-    $scope.triggerStepDialog = function(option) {
-      return Utils.openConfirmableModalDialog('views/partials/trigger_step.html', option, $scope);
     };
 
     $scope.assignScorePointsDialog = function(option) {
