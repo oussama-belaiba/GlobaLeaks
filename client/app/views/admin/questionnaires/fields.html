@@ -136,142 +136,121 @@
             </div>
           </div>
         </div>
-        <div class="row">
+        <div class="row" data-ng-if="showConfiguration(field)">
           <div class="col-md-12">
-            <div class="form-group" data-ng-if="showConfiguration(field)">
-              <label data-translate>Configuration</label>
-              <div class="col-md-12">
-                <div data-ng-if="field.type === 'inputbox' || field.type === 'textarea'">
-                  <div class="row">
-                    <div class="form-group">
-                      <label data-translate>Minimum number of input characters</label>
-                      <div>
-                        <input data-ng-model="field.attrs.min_len.value" type="text" class="form-control" data-ng-disabled="!editable" />
-                      </div>
-                    </div>
-                    <div class="form-group">
-                      <label>
-                        <span data-translate>Maximum number of input characters</span>
-                        <span>(<span data-translate>-1 = unlimited</span>)</span>
-                      </label>
-                      <div>
-                        <input data-ng-model="field.attrs.max_len.value" type="text" class="form-control" data-ng-disabled="!editable" />
-                      </div>
-                    </div>
-                    <div class="form-group">
-                      <label data-translate>Input validation</label>
-                      <select name="type" class="form-control" data-ng-model="field.attrs.input_validation.value" required>
-                        <option value="none" data-translate>None</option>
-                        <option value="email" data-translate>Email address</option>
-                        <option value="number" data-translate>Number</option>
-                        <option value="phonenumber" data-translate>Phone number</option>
-                        <option value="custom" data-translate>Custom</option>
-                      </select>
-                    </div>
-                    <div class="form-group" data-ng-if="field.attrs.input_validation.value === 'custom'">
-                      <label data-translate>Regular expression</label>
-                      <div>
-                        <input data-ng-model="field.attrs.regexp.value" type="text" class="form-control" data-ng-disabled="!editable" />
-                      </div>
-                    </div>
+            <div data-ng-if="field.type === 'inputbox' || field.type === 'textarea'">
+              <div class="form-group">
+                <label data-translate>Minimum number of input characters</label>
+                <input data-ng-model="field.attrs.min_len.value" type="text" class="form-control" data-ng-disabled="!editable" />
+              </div>
+              <div class="form-group">
+                <label>
+                  <span data-translate>Maximum number of input characters</span>
+                  <span>(<span data-translate>-1 = unlimited</span>)</span>
+                </label>
+                <input data-ng-model="field.attrs.max_len.value" type="text" class="form-control" data-ng-disabled="!editable" />
+              </div>
+              <div class="form-group">
+                <label data-translate>Input validation</label>
+                <select name="type" class="form-control" data-ng-model="field.attrs.input_validation.value" required>
+                  <option value="none" data-translate>None</option>
+                  <option value="email" data-translate>Email address</option>
+                  <option value="number" data-translate>Number</option>
+                  <option value="phonenumber" data-translate>Phone number</option>
+                  <option value="custom" data-translate>Custom</option>
+                </select>
+              </div>
+              <div class="form-group" data-ng-if="field.attrs.input_validation.value === 'custom'">
+                <label data-translate>Regular expression</label>
+                <input data-ng-model="field.attrs.regexp.value" type="text" class="form-control" data-ng-disabled="!editable" />
+              </div>
+            </div>
+            <div data-ng-if="field.type === 'tos'">
+              <div class="form-group">
+                <label data-translate>Clause</label>
+                <textarea data-ng-model="field.attrs.clause.value" maxlength="{{node.maximum_textsize}}" class="form-control" data-ng-disabled="!editable"></textarea>
+              </div>
+              <div class="form-group">
+                <label data-translate>Agreement Text</label>
+                <input data-ng-model="field.attrs.agreement_statement.value" type="text" class="form-control" data-ng-disabled="!editable" />
+              </div>
+            </div>
+            <div data-ng-disabled="!editable">
+              <div data-ng-if="field.type === 'checkbox' || field.type === 'multichoice'">
+                <div class="form-group">
+                  <label data-translate>Layout orientation</label>
+                  <select name="type" class="form-control" data-ng-model="field.attrs.layout_orientation.value" required>
+                    <option value="vertical" data-translate>vertical</option>
+                    <option value="horizontal" data-translate>horizontal</option>
+                  </select>
+                </div>
+              </div>
+              <div data-ng-if="field.type === 'checkbox' || field.type === 'multichoice' || field.type === 'selectbox'">
+                <div class="form-group">
+                  <input data-ng-model="field.attrs.display_alphabetically.value" type="checkbox">
+                  <label data-translate>Display options alphabetically</label>
+                </div>
+              </div>
+              <div data-ng-if="field.type === 'date'" data-ng-init="open_min_date = false; open_max_date = false">
+                <div class="form-group">
+                  <div uib-datepicker-popup
+                       ng-model="field.attrs.min_date.value"
+                       is-open="open_min_date"
+                       show-button-bar="false"
+                       data-ng-click="open_min_date = !open_min_date">
+                    <label data-translate>Earliest selectable date</label>:
+                    <span data-ng-show="field.attrs.min_date.value !== ''">
+                      <span>{{field.attrs.min_date.value | date:'dd-MM-yyyy'}}</span>
+                      <button class="btn btn-xs btn-danger"
+                              data-ng-click="field.attrs.min_date.value = ''; $event.stopPropagation();">
+                        <span class="glyphicon glyphicon-remove"></span>
+                      </button>
+                    </span>
+                    <button data-ng-show="field.attrs.min_date.value === ''" type="button" class="btn btn-xs btn-default"><i class="glyphicon glyphicon-calendar"></i></button>
                   </div>
                 </div>
-                <div data-ng-if="field.type === 'tos'">
-                  <div class="row">
-                    <div class="form-group">
-                      <label data-translate>Clause</label>
-                      <textarea data-ng-model="field.attrs.clause.value" maxlength="{{node.maximum_textsize}}" class="form-control" data-ng-disabled="!editable"></textarea>
-                    </div>
-                    <div class="form-group">
-                      <label data-translate>Agreement Text</label>
-                      <div>
-                        <input data-ng-model="field.attrs.agreement_statement.value" type="text" class="form-control" data-ng-disabled="!editable" />
-                      </div>
-                    </div>
+                <div class="form-group">
+                  <div uib-datepicker-popup
+                       data-ng-model="field.attrs.max_date.value"
+                       is-open="open_max_date"
+                       show-button-bar="false"
+                       data-ng-click="open_max_date = !open_max_date">
+                    <label data-translate>Latest selectable date</label>:
+                    <span data-ng-show="field.attrs.max_date.value !== ''">
+                      <span>{{field.attrs.max_date.value | date:'dd-MM-yyyy'}}</span>
+                      <button class="btn btn-xs btn-danger"
+                              data-ng-click="field.attrs.max_date.value = ''; $event.stopPropagation();">
+                        <span class="glyphicon glyphicon-remove"></span>
+                      </button>
+                    </span>
+                    <button data-ng-show="field.attrs.max_date.value === ''" type="button" class="btn btn-xs btn-default"><i class="glyphicon glyphicon-calendar"></i></button>
                   </div>
                 </div>
-                <div data-ng-if="field.type === 'checkbox' || field.type === 'multichoice'">
-                  <div class="row" data-ng-disabled="!editable">
-                    <label data-translate>Layout orientation</label>
-                    <select name="type" class="form-control" data-ng-model="field.attrs.layout_orientation.value" required>
-                      <option value="vertical" data-translate>vertical</option>
-                      <option value="horizontal" data-translate>horizontal</option>
-                    </select>
+              </div>
+              <div data-ng-if="field.instance === 'template'" data-ng-switch="field.id" class="col-md-offset-1 col-md-11">
+                <div data-ng-switch-when="whistleblower_identity">
+                  <div class="form-group">
+                    <input data-ng-model="field.attrs.visibility_subject_to_authorization.value" type="checkbox">
+                    <label data-translate>Subject answer visibility to custodian authorization</label>
                   </div>
-                </div>
-                <div data-ng-if="field.type === 'checkbox' || field.type === 'multichoice' || field.type === 'selectbox'">
-                  <div class="row" data-ng-disabled="!editable">
-                      <div class="form-group">
-                        <input data-ng-model="field.attrs.display_alphabetically.value" type="checkbox">
-                        <label data-translate>Display options alphabetically</label>
-                      </div>
+                  <div class="form-group">
+                    <input data-ng-model="field.attrs.prompt_confirmation_upon_negative_answer.value" type="checkbox">
+                    <label data-translate>Prompt confirmation upon negative answer</label>
                   </div>
-                </div>
-                <div data-ng-if="field.type === 'date'" data-ng-init="open_min_date = false;">
-                  <div class="row" data-ng-disabled="!editable">
-                    <div uib-datepicker-popup
-                         ng-model="field.attrs.min_date.value"
-                         is-open="open_min_date"
-                         show-button-bar="false"
-                         data-ng-click="open_min_date = !open_min_date">
-                      <label data-translate>Earliest selectable date</label>:
-                      <span data-ng-show="field.attrs.min_date.value !== ''">
-                        <span>{{field.attrs.min_date.value | date:'dd-MM-yyyy'}}</span>
-                        <button class="btn btn-xs btn-danger"
-                                data-ng-click="field.attrs.min_date.value = ''; $event.stopPropagation();">
-                          <span class="glyphicon glyphicon-remove"></span>
-                        </button>
-                      </span>
-                      <button data-ng-show="field.attrs.min_date.value === ''" type="button" class="btn btn-xs btn-default"><i class="glyphicon glyphicon-calendar"></i></button>
+                  <div class="form-group" data-ng-show="field.attrs.prompt_confirmation_upon_negative_answer.value">
+                    <label data-translate>Title of the confirmation question upon negative answer</label>
+                    <textarea class="form-control" maxlength="{{node.maximum_textsize}}" data-ng-model="field.attrs.title_of_confirmation_question_upon_negative_answer.value"></textarea>
+                  </div>
+                  <div class="form-group" data-ng-show="field.attrs.prompt_confirmation_upon_negative_answer.value">
+                    <label data-translate>Body of the confirmation question upon negative answer</label>
+                    <div>
+                      <textarea class="form-control" maxlength="{{node.maximum_textsize}}" data-ng-model="field.attrs.text_of_confirmation_question_upon_negative_answer.value"></textarea>
                     </div>
                   </div>
-                  <div class="row" data-ng-disabled="!editable" data-ng-init="open_max_date = false">
-                    <div uib-datepicker-popup
-                         data-ng-model="field.attrs.max_date.value"
-                         is-open="open_max_date"
-                         show-button-bar="false"
-                         data-ng-click="open_max_date = !open_max_date">
-                      <label data-translate>Latest selectable date</label>:
-                      <span data-ng-show="field.attrs.max_date.value !== ''">
-                        <span>{{field.attrs.max_date.value | date:'dd-MM-yyyy'}}</span>
-                        <button class="btn btn-xs btn-danger"
-                                data-ng-click="field.attrs.max_date.value = ''; $event.stopPropagation();">
-                          <span class="glyphicon glyphicon-remove"></span>
-                        </button>
-                      </span>
-                      <button data-ng-show="field.attrs.max_date.value === ''" type="button" class="btn btn-xs btn-default"><i class="glyphicon glyphicon-calendar"></i></button>
-                    </div>
-                  </div>
-                </div>
-                <div data-ng-if="field.instance === 'template'" data-ng-switch="field.id" class="col-md-offset-1 col-md-11">
-                  <div data-ng-switch-when="whistleblower_identity">
-                    <div class="row">
-                      <div class="form-group">
-                        <input data-ng-model="field.attrs.visibility_subject_to_authorization.value" type="checkbox">
-                        <label data-translate>Subject answer visibility to custodian authorization</label>
-                      </div>
-                      <div class="form-group">
-                        <input data-ng-model="field.attrs.prompt_confirmation_upon_negative_answer.value" type="checkbox">
-                        <label data-translate>Prompt confirmation upon negative answer</label>
-                      </div>
-                      <div class="form-group" data-ng-show="field.attrs.prompt_confirmation_upon_negative_answer.value">
-                        <label data-translate>Title of the confirmation question upon negative answer</label>
-                        <div>
-                          <textarea class="form-control" maxlength="{{node.maximum_textsize}}" data-ng-model="field.attrs.title_of_confirmation_question_upon_negative_answer.value"></textarea>
-                        </div>
-                      </div>
-                      <div class="form-group" data-ng-show="field.attrs.prompt_confirmation_upon_negative_answer.value">
-                        <label data-translate>Body of the confirmation question upon negative answer</label>
-                        <div>
-                          <textarea class="form-control" maxlength="{{node.maximum_textsize}}" data-ng-model="field.attrs.text_of_confirmation_question_upon_negative_answer.value"></textarea>
-                        </div>
-                      </div>
-                      <div class="form-group" data-ng-show="field.attrs.prompt_confirmation_upon_negative_answer.value">
-                        <label>Text of the final statement upon negative answer</label>
-                        <div>
-                          <textarea class="form-control" maxlength="{{node.maximum_textsize}}" data-ng-model="field.attrs.text_of_final_statement_upon_negative_answer.value"></textarea>
-                        </div>
-                      </div>
+                  <div class="form-group" data-ng-show="field.attrs.prompt_confirmation_upon_negative_answer.value">
+                    <label>Text of the final statement upon negative answer</label>
+                    <div>
+                      <textarea class="form-control" maxlength="{{node.maximum_textsize}}" data-ng-model="field.attrs.text_of_final_statement_upon_negative_answer.value"></textarea>
                     </div>
                   </div>
                 </div>
