@@ -206,7 +206,7 @@
                         <span class="glyphicon glyphicon-remove"></span>
                       </button>
                     </span>
-                    <button data-ng-show="field.attrs.min_date.value === ''" type="button" class="btn btn-xs btn-default"><i class="glyphicon glyphicon-calendar"></i></button>
+                    <button data-ng-show="field.attrs.min_date.value === ''" type="submit" class="btn btn-xs btn-default"><i class="glyphicon glyphicon-calendar"></i></button>
                   </div>
                 </div>
                 <div class="form-group">
@@ -223,7 +223,7 @@
                         <span class="glyphicon glyphicon-remove"></span>
                       </button>
                     </span>
-                    <button data-ng-show="field.attrs.max_date.value === ''" type="button" class="btn btn-xs btn-default"><i class="glyphicon glyphicon-calendar"></i></button>
+                    <button data-ng-show="field.attrs.max_date.value === ''" type="submit" class="btn btn-xs btn-default"><i class="glyphicon glyphicon-calendar"></i></button>
                   </div>
                 </div>
               </div>
@@ -261,7 +261,13 @@
         <div class="row">
           <div class="col-md-12">
             <div class="form-group" data-ng-if="showOptions(field)">
-              <label data-translate>Options</label>
+              <label>
+                <span data-translate>Options</span>
+                <button class="btn btn-xs btn-primary show-add-question-btn" data-ng-click="addOption()">
+                  <i class="glyphicon glyphicon-plus"></i>
+                  <span data-translate>Add</span>
+                </button>
+              </label>
               <div class="col-md-12">
                 <div class="fieldOption" data-ng-repeat="option in field.options">
                   <div class="row">
@@ -294,35 +300,36 @@
                     </div>
                   </div>
                 </div>
-                <div>
-                  <a data-ng-click="addOption()">
-                    <i class="glyphicon glyphicon-plus-sign"></i>
-                    <span data-translate>Add option</span>
-                  </a>
-                </div>
               </div>
             </div>
           </div>
         </div>
         <div data-ng-if="editable && field.instance !== 'reference' && field.type === 'fieldgroup'">
-          <div class="row" data-ng-if="editable && field.type === 'fieldgroup'">
-            <div class="col-md-12">
-              <label data-translate>Add new question</label>
-              <div data-ng-include="'views/admin/questionnaires/add_field.html'"></div>
-            </div>
-            <div class="col-md-12" data-ng-if="field.instance === 'instance' && admin.fieldtemplates.length > 0">
-            <label data-translate>Add question from template</label>
-              <div data-ng-include="'views/admin/questionnaires/add_field_from_template.html'"></div>
-            </div>
-          </div>
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
-                <div class="editorTitle" data-translate>Configured questions:</div>
-                  <div class="configuredFields">
-                    <div data-ng-repeat="field in children | orderBy:['y', 'x']">
-                      <div data-ng-include="'views/admin/questionnaires/fields.html'"></div>
-                    </div>
+                <div class="editorTitle">
+                  <span data-translate>Questions</span>
+                  <button class="btn btn-xs btn-primary show-add-question-btn" data-ng-click="toggleAddQuestion()">
+                    <i class="glyphicon glyphicon-plus"></i>
+                    <span data-translate>Add new question</span>
+                  </button>
+                  <button class="btn btn-xs btn-primary show-add-question-from-template-btn" data-ng-click="toggleAddQuestionFromTemplate()" data-ng-if="field.instance === 'instance' && admin.fieldtemplates.length > 0">
+                    <i class="glyphicon glyphicon-plus"></i>
+                    <span data-translate>Add question from template</span>
+                  </button>
+                </div>
+                <div class="row" data-ng-if="editable && field.type === 'fieldgroup'">
+                  <div class="col-md-12" data-ng-if="showAddQuestion">
+                    <div data-ng-include="'views/admin/questionnaires/add_field.html'"></div>
+                  </div>
+                  <div class="col-md-12" data-ng-if="showAddQuestionFromTemplate">
+                    <div data-ng-include="'views/admin/questionnaires/add_field_from_template.html'"></div>
+                  </div>
+                </div>
+                <div class="configuredFields">
+                  <div data-ng-repeat="field in children | orderBy:['y', 'x']">
+                    <div data-ng-include="'views/admin/questionnaires/fields.html'"></div>
                   </div>
                 </div>
               </div>
