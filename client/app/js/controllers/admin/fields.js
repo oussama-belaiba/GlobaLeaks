@@ -68,6 +68,7 @@ GLClient.controller('AdminFieldEditorCtrl', ['$scope', '$uibModal', 'Utils',
 
     $scope.delField = function(field) {
       return Utils.deleteResource($scope.fieldResource, $scope.fields, field);
+    };
 
     $scope.showAddQuestion = false;
     $scope.toggleAddQuestion= function() {
