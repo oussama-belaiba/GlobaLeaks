@@ -41,6 +41,7 @@ def wizard(store, tid, request, language):
     profiles.load_profile(store, tid, request['profile'])
 
     receiver_desc = models.User().dict(language)
+    receiver_desc['name'] = request['receiver_name']
     receiver_desc['username'] = u'recipient'
     receiver_desc['mail_address'] = request['receiver_mail_address']
     receiver_desc['language'] = language
