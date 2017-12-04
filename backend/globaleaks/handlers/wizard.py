@@ -57,6 +57,7 @@ def wizard(store, tid, request, language):
     context = db_create_context(store, tid, context_desc, language)
 
     admin_desc = models.User().dict(language)
+    admin_desc['name'] = request['admin_name']
     admin_desc['username'] = u'admin'
     admin_desc['password'] = request['admin_password']
     admin_desc['mail_address'] = request['admin_mail_address']
