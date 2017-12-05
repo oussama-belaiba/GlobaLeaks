@@ -14,6 +14,8 @@ describe('admin configure languages', function() {
 
     element.all(by.cssContainingText("button", "Save")).get(1).click();
 
+    element(by.cssContainingText("a", "Languages")).click();
+
     element(by.model('GLTranslate.indirect.appLanguage')).element(by.xpath(".//*[text()='Deutsch']")).click();
 
     expect(browser.isElementPresent(element(by.cssContainingText("a", "General settings")))).toBe(false);
@@ -45,8 +47,6 @@ describe('admin configure languages', function() {
 
     // Switch the default to english and disable german
     element.all(by.css('.non-default-language')).get(1).click();
-
-    browser.gl.utils.waitUntilClickable(by.css('.remove-lang-btn'));
 
     element.all(by.css('.remove-lang-btn')).get(0).click();
 
