@@ -7,10 +7,12 @@ describe('admin configure languages', function() {
     element(by.className('add-language-btn')).click();
     var input = element(by.id('LanguageAdder')).all(by.css('input')).last();
     input.sendKeys('Italiano' + protractor.Key.TAB);
+    browser.sleep(1000);
 
     element(by.className('add-language-btn')).click();
     input = element(by.id('LanguageAdder')).all(by.css('input')).last();
     input.sendKeys('Deutsch' + protractor.Key.TAB);
+    browser.sleep(1000);
 
     element.all(by.cssContainingText("button", "Save")).get(1).click();
 
