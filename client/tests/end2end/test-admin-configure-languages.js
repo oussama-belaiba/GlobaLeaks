@@ -6,13 +6,11 @@ describe('admin configure languages', function() {
 
     element(by.className('add-language-btn')).click();
     var input = element(by.id('LanguageAdder')).all(by.css('input')).last();
-    input.sendKeys('Italiano');
-    input.sendKeys(protractor.Key.ENTER).perform();
+    input.sendKeys('Italiano' + protractor.Key.TAB);
 
     element(by.className('add-language-btn')).click();
     input = element(by.id('LanguageAdder')).all(by.css('input')).last();
-    input.sendKeys('Deutsch');
-    input.sendKeys(protractor.Key.ENTER).perform();
+    input.sendKeys('Deutsch' + protractor.Key.TAB);
 
     element.all(by.cssContainingText("button", "Save")).get(1).click();
 
