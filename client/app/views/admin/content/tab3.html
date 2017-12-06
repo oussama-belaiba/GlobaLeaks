@@ -25,8 +25,8 @@
           <input data-ng-model="admin.node.default_language" class="hidden" />
           <li data-ng-repeat="lang_code in admin.node.languages_enabled | orderBy">
             <span class="action-btns">
-             <span data-ng-show="lang_code === admin.node.default_language" class="default-language">
-                 <i class="glyphicon glyphicon-ok-sign"></i>
+              <span data-ng-show="lang_code === admin.node.default_language" class="default-language">
+                <i class="glyphicon glyphicon-ok-sign"></i>
               </span>
               <span data-ng-show="lang_code !== admin.node.default_language" class="non-default-language"
                 uib-popover="{{'Use as default' | translate}}"
